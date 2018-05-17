@@ -1,6 +1,7 @@
 #include "Game.h"
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow){
+	
 	ChangeWindowMode(TRUE);
 	SetGraphMode(WindowSize_X, WindowSize_Y, 32);
 	if (DxLib_Init() == -1){

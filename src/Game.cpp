@@ -1,18 +1,19 @@
 #include "Game.h"
 
 //宣言
-MAPDATA map;		//マップ
-MAPDATA map_copy;	//マップのコピー
-CHARACTER player;	//プレイヤー
-OBJECT stair;		//ID 0:階段
-int Floor_WallHandle[2];
+MapData map;//マップ
+MapData map_copy;	//マップのコピー
+Character player;	//プレイヤー
+Object stair;		//ID 0:階段
+
 void Game(){
 	clsDx(); //テスト用
 	LoadGraphHandle();
-	MAPDEF def;
+	MapDef def;
 	//def.ROOM_SIZE = 15;
 	//def.SECT_NUM = 4;
 	map.MapGenerator1(def);
+	map.loadGraph("Resource/graph/floor_wall.png");
 	map_copy = map; //マップのコピー
 	Init();
 	Disp();
@@ -175,7 +176,7 @@ void CommandExecution()
 
 /*void Disp()
 画面表示
-			マップ		   ＞ MAPDATA mapをもとに描画
+			マップ		   ＞ MapData mapをもとに描画
 キャラクター・オブジェクト ＞ それぞれの持つ座標をもとに描画
 マップ＞オブジェクト＞キャラクターの順番に描画
 プレイヤーが常に画面上の指定した位置に描画される
@@ -183,41 +184,23 @@ int player_X,player_Yを変更することでプレイヤーの描画位置を変更可
 */
 void Disp() {
 	
-	int ChipSize = 32;
 	//プレイヤーを描画する座標(全ての基準点)
-	int player_X = WindowSize_X / 2 - ChipSize / 2;
-	int player_Y = WindowSize_Y / 2 - ChipSize * 2;
-	
-	//マップ描画の開始点
-	int point_X = player_X -player.xpos*ChipSize;
-	int point_Y = player_Y -player.ypos*ChipSize+32;
+	int player_X = WindowSize_X / 2 - MAPCHIPSIZE / 2;
+	int player_Y = WindowSize_Y / 2 - MAPCHIPSIZE * 2;
 
-	for (int i = 0; i < map.getMapSize(); i++){
-		for (int j = 0; j < map.getMapSize(); j++) {
-			//壁描画
-			if (map.getData(j, i) == WALL){
-				DrawGraph(j*ChipSize + point_X,i*ChipSize + point_Y,Floor_WallHandle[1],TRUE);
-			}
-			//床描画
-			else{
-				DrawGraph(j*ChipSize + point_X, i*ChipSize + point_Y, Floor_WallHandle[0], TRUE);
-			}
-		}
-	}
+	map.MapDisp(XY(player.xpos, player.ypos));
 	//階段描画
-	int x = ConversionPosition(stair.xpos, player_X, ChipSize, true);
-	int y = ConversionPosition(stair.ypos, player_Y, ChipSize, false);
+	int x = ConversionPosition(stair.xpos, player_X, MAPCHIPSIZE, true);
+	int y = ConversionPosition(stair.ypos, player_Y, MAPCHIPSIZE, false);
 	DrawGraph(x, y, stair.CharGraph, TRUE);
 	//プレイヤー描画
 	DrawGraph(player_X, player_Y, player.CharGraph, TRUE);
 }
 /*void LoadGraphHandle()
-ステージごとに使う画像データの読み込み
 */
 void LoadGraphHandle(){
 	player.CharGraph = LoadGraph("Resource/graph/player.png");
 	stair.CharGraph = LoadGraph("Resource/graph/stair.png");
-	LoadDivGraph("Resource/graph/floor_wall.png", 2, 2, 1, 32, 32, Floor_WallHandle);
 }
 
 /*int ConversionPosition(int MapPos, int DispPlayerPos, int ChipSize, bool flag)

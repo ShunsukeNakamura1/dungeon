@@ -6,7 +6,7 @@ char[] name     :–¼‘O
 char   level    :ƒŒƒxƒ‹
 char   xpos,ypos:À•W
 */
-struct CHARACTER {
+struct Character {
 	char name[32];
 	char ID;
 	char level;
@@ -14,5 +14,5 @@ struct CHARACTER {
 	int CharGraph;
 	int exp;
 };
-extern CHARACTER player;
+extern Character player;
 

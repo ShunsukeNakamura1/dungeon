@@ -1,28 +1,33 @@
 #include "Map.h"
 
-void MAPDATA::MapGenerator1(MAPDEF mapDef) {
-	MapDefSet(mapDef);
+MapData::MapData(){}
+MapData::MapData(std::string filename) {
+	//loadGraph(filename);
+	LoadDivGraph(filename.c_str(), 2, 2, 1, MAPCHIPSIZE, MAPCHIPSIZE, Floor_WallHandle);
+}
 
+void MapData::MapGenerator1(MapDef MapDef) {
+	MapDefSet(MapDef);
 	int roomNum = GetRand(def.ROOM_NUM_MAX - def.ROOM_NUM_MIN) + def.ROOM_NUM_MIN; //部屋数
 
 	bool isRoomExist[SECT_NUM_MAX][SECT_NUM_MAX] = {false}; //3*3に区切ったマップのどこに部屋が存在するか
-	ROOMDATA *roomData = new ROOMDATA[roomNum];
+	RoomData *roomdata = new RoomData[roomNum];
 	for (int i = 0; i < roomNum;) {
 		int x = GetRand(def.SECT_NUM - 1);
 		int y = GetRand(def.SECT_NUM - 1);
 		if (!isRoomExist[x][y]) {
 			isRoomExist[x][y] = true;
 
-			roomData[i] = RoomMaker();
-			RoomSet(x, y, roomData[i]);//マップに部屋を配置する関数
+			roomdata[i] = RoomMaker();
+			RoomSet(x, y, roomdata[i]);//マップに部屋を配置する関数
 
 			i++;
 		}
 	}
 }
 
-void MAPDATA::MapDefSet(MAPDEF mapDef) {
-	def = mapDef;
+void MapData::MapDefSet(MapDef MapDef) {
+	def = MapDef;
 
 	if (def.ROOM_SIZE > ROOM_SIZE_MAX) {
 		def.ROOM_SIZE = ROOM_SIZE_MAX;
@@ -36,11 +41,10 @@ void MAPDATA::MapDefSet(MAPDEF mapDef) {
 	if (def.ROOM_NUM_MAX > def.SECT_NUM*def.SECT_NUM) {
 		def.ROOM_NUM_MAX = def.SECT_NUM*def.SECT_NUM;
 	}
-	MAP_SIZE = def.SECT_NUM * def.ROOM_SIZE
-		+ (def.SECT_NUM - 1) * GAP_SIZE; //最大マップサイズ
+	MAP_SIZE = def.SECT_NUM * def.ROOM_SIZE + (def.SECT_NUM - 1) * GAP_SIZE; //最大マップサイズ
 }
-ROOMDATA MAPDATA::RoomMaker() {
-	ROOMDATA room;
+RoomData MapData::RoomMaker() {
+	RoomData room;
 	MakeRectRoom(&room);
 
 	MakeDigRoom(&room);
@@ -49,7 +53,7 @@ ROOMDATA MAPDATA::RoomMaker() {
 
 	return room;
 }
-void MAPDATA::MakeRectRoom(ROOMDATA *room) {
+void MapData::MakeRectRoom(RoomData *room) {
 	room->x1 = 0;
 	room->y1 = 0;
 	room->x2 = 4 + GetRand(def.ROOM_SIZE - 4);
@@ -64,7 +68,7 @@ void MAPDATA::MakeRectRoom(ROOMDATA *room) {
 		}
 	}
 }
-void MAPDATA::MakeDigRoom(ROOMDATA *room) {
+void MapData::MakeDigRoom(RoomData *room) {
 	//部屋を削る数
 	char isDigRoom = GetRand(100);
 	if (isDigRoom < 50) { //50パーセントの確立で部屋を0個削る
@@ -102,7 +106,7 @@ void MAPDATA::MakeDigRoom(ROOMDATA *room) {
 		}
 	}
 }
-void MAPDATA::MakeShiftRoom(ROOMDATA *room) {
+void MapData::MakeShiftRoom(RoomData *room) {
 	char data[ROOM_SIZE_MAX][ROOM_SIZE_MAX] = { WALL };
 	//区画内で部屋をずらす量
 	int xShift = GetRand(def.ROOM_SIZE - room->x2);
@@ -126,7 +130,7 @@ void MAPDATA::MakeShiftRoom(ROOMDATA *room) {
 	room->y1 += yShift;
 	room->y2 += yShift;
 }
-void MAPDATA::RoomSet(char RoomNum_X, char RoomNum_Y, ROOMDATA data)
+void MapData::RoomSet(char RoomNum_X, char RoomNum_Y, RoomData data)
 {
 	for (int i = 0; i < def.ROOM_SIZE; i++)
 	{
@@ -138,24 +142,47 @@ void MAPDATA::RoomSet(char RoomNum_X, char RoomNum_Y, ROOMDATA data)
 		}
 	}
 }
-void MAPDATA::MapDisp()
+int MapData::CheckLink(int, int, int, Link[][SECT_NUM_MAX], bool[][SECT_NUM_MAX], bool[][SECT_NUM_MAX]) {
+
+	return 0;
+}
+
+
+void MapData::loadGraph(std::string filename) {
+	LoadDivGraph(filename.c_str(), 2, 2, 1, MAPCHIPSIZE, MAPCHIPSIZE, Floor_WallHandle);
+}
+void MapData::MapDisp(XY playerPos)
 {
-	printfDx("マップ表示\n");
-	for (int y = 0; y < MAP_SIZE; y++) {
-		for (int x = 0; x < MAP_SIZE; x++) {
-			printfDx("%s", getData(x, y) ? "■" : "□");
+	//プレイヤーを描画する座標(全ての基準点)
+	int player_X = WindowSize_X / 2 - MAPCHIPSIZE / 2;
+	int player_Y = WindowSize_Y / 2 - MAPCHIPSIZE * 2;
+
+	//マップ描画の開始点
+	int point_X = player_X - playerPos.x*MAPCHIPSIZE;
+	int point_Y = player_Y - playerPos.y*MAPCHIPSIZE + MAPCHIPSIZE;
+
+	for (int i = 0; i < getMapSize(); i++) {
+		for (int j = 0; j < getMapSize(); j++) {
+			//壁描画
+			if (this->getData(j, i) == WALL) {
+				DrawGraph(j*MAPCHIPSIZE + point_X, i*MAPCHIPSIZE + point_Y, Floor_WallHandle[1], TRUE);
+			}
+			//床描画
+			else {
+				DrawGraph(j*MAPCHIPSIZE + point_X, i*MAPCHIPSIZE + point_Y, Floor_WallHandle[0], TRUE);
+			}
 		}
-		printfDx("\n");
 	}
 }
-void MAPDATA::setData(int x, int y, char d)
+void MapData::setData(int x, int y, char d)
 {
 	data[x][y] = d;
 }
-char MAPDATA::getData(int x, int y)
+char MapData::getData(int x, int y)
 {
 	return data[x][y];
 }
-char MAPDATA::getMapSize() {
+char MapData::getMapSize()
+{
 	return MAP_SIZE;
 }
