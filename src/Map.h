@@ -72,6 +72,8 @@ public:
 	void loadGraph(std::string filename);
 	void MapDisp(XY playerPos);	//マップ表示
 	void setData(int, int, char);
+	void setData(XY position, char d);
 	char getData(int, int);
+	char getData(XY position);
 	char getMapSize();
 };

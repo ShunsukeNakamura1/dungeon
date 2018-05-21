@@ -2,7 +2,6 @@
 
 MapData::MapData(){}
 MapData::MapData(std::string filename) {
-	//loadGraph(filename);
 	LoadDivGraph(filename.c_str(), 2, 2, 1, MAPCHIPSIZE, MAPCHIPSIZE, Floor_WallHandle);
 }
 
@@ -178,9 +177,15 @@ void MapData::setData(int x, int y, char d)
 {
 	data[x][y] = d;
 }
+void MapData::setData(XY position, char d) {
+	data[position.x][position.y] = d;
+}
 char MapData::getData(int x, int y)
 {
 	return data[x][y];
+}
+char MapData::getData(XY position) {
+	return data[position.x][position.y];
 }
 char MapData::getMapSize()
 {

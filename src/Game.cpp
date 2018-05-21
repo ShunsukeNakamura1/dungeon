@@ -10,10 +10,8 @@ void Game(){
 	clsDx(); //テスト用
 	LoadGraphHandle();
 	MapDef def;
-	//def.ROOM_SIZE = 15;
-	//def.SECT_NUM = 4;
 	map.MapGenerator1(def);
-	map.loadGraph("Resource/graph/floor_wall.png");
+	map.loadGraph(STAGE1_GRAPH);
 	map_copy = map; //マップのコピー
 	Init();
 	Disp();
@@ -39,11 +37,11 @@ void Game(){
 void Init(){
 	//プレイヤーをどこかのROOMのどこかに配置
 	while (1){
-		player.ID = 1;
-		player.xpos = GetRand(map.getMapSize()-1);
-		player.ypos = GetRand(map.getMapSize()-1);
-		if (map.getData(player.xpos, player.ypos) == ROOM){
-			map_copy.setData(player.xpos, player.ypos, CHAR1);
+		player.setID(1);
+		XY playerpos(GetRand(map.getMapSize() - 1), GetRand(map.getMapSize() - 1));
+		player.setPosition(playerpos);
+		if (map.getData(player.getPosition()) == ROOM){
+			map_copy.setData(player.getPosition(), CHAR1);
 			break;
 		}
 	}
@@ -107,8 +105,8 @@ void DispMinMap(int CangeShift_X, int CangeShift_Y, int ChangeSize)
 	int y = shift_Y + stair.ypos*ChipSize;
 	DrawBox(x, y, x + ChipSize, y + ChipSize, White, TRUE);
 	//プレイヤーを赤で表示
-	x = WindowSize_X - (shift_X + map.getMapSize()*ChipSize) + player.xpos*ChipSize;
-	y = shift_Y + player.ypos*ChipSize;
+	x = WindowSize_X - (shift_X + map.getMapSize()*ChipSize) + player.getX()*ChipSize;
+	y = shift_Y + player.getY()*ChipSize;
 	DrawBox(x,y,x + ChipSize,y + ChipSize, Red, TRUE);
 
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);	//透過設定をもとに戻す
@@ -121,32 +119,32 @@ void CommandExecution()
 	switch (KeyState){
 	//移動
 	case CTRL_CODE_LEFT:
-		if (map_copy.getData(player.xpos-1, player.ypos) != WALL){
-			map_copy.setData(player.xpos-1, player.ypos,CHAR1);
-			map_copy.setData(player.xpos , player.ypos, map.getData(player.xpos, player.ypos));
-			player.xpos--;
+		if (map_copy.getData(player.getX()-1, player.getY()) != WALL){
+			map_copy.setData(player.getX()-1, player.getY(),CHAR1);
+			map_copy.setData(player.getX() , player.getY(), map.getData(player.getX(), player.getY()));
+			player.move(XY(-1, 0));
 		}
 		break;
 	
 	case CTRL_CODE_RIGHT:
-		if (map_copy.getData(player.xpos+1, player.ypos) != WALL){
-			map_copy.setData(player.xpos+1, player.ypos, CHAR1);
-			map_copy.setData(player.xpos, player.ypos, map.getData(player.xpos, player.ypos));
-			player.xpos++;
+		if (map_copy.getData(player.getX()+1, player.getY()) != WALL){
+			map_copy.setData(player.getX()+1, player.getY(), CHAR1);
+			map_copy.setData(player.getX(), player.getY(), map.getData(player.getX(), player.getY()));
+			player.move(XY(1, 0));
 		}
 		break;
 	case CTRL_CODE_UP:
-		if (map_copy.getData(player.xpos, player.ypos-1) != WALL) {
-			map_copy.setData(player.xpos, player.ypos-1, CHAR1);
-			map_copy.setData(player.xpos, player.ypos, map.getData(player.xpos, player.ypos));
-			player.ypos--;
+		if (map_copy.getData(player.getX(), player.getY()-1) != WALL) {
+			map_copy.setData(player.getX(), player.getY()-1, CHAR1);
+			map_copy.setData(player.getX(), player.getY(), map.getData(player.getX(), player.getY()));
+			player.move(XY(0, -1));
 		}
 		break;
 	case CTRL_CODE_DOWN:
-		if (map_copy.getData(player.xpos, player.ypos+1) != WALL) {
-			map_copy.setData(player.xpos, player.ypos+1, CHAR1);
-			map_copy.setData(player.xpos, player.ypos, map.getData(player.xpos, player.ypos));
-			player.ypos++;
+		if (map_copy.getData(player.getX(), player.getY()+1) != WALL) {
+			map_copy.setData(player.getX(), player.getY()+1, CHAR1);
+			map_copy.setData(player.getX(), player.getY(), map.getData(player.getX(), player.getY()));
+			player.move(XY(0, 1));
 		}
 		break;
 	//ミニマップサイズ変更
@@ -183,23 +181,23 @@ void CommandExecution()
 int player_X,player_Yを変更することでプレイヤーの描画位置を変更可
 */
 void Disp() {
-	
+	//マップ描画
+	map.MapDisp(player.getPosition());
 	//プレイヤーを描画する座標(全ての基準点)
 	int player_X = WindowSize_X / 2 - MAPCHIPSIZE / 2;
 	int player_Y = WindowSize_Y / 2 - MAPCHIPSIZE * 2;
-
-	map.MapDisp(XY(player.xpos, player.ypos));
 	//階段描画
 	int x = ConversionPosition(stair.xpos, player_X, MAPCHIPSIZE, true);
 	int y = ConversionPosition(stair.ypos, player_Y, MAPCHIPSIZE, false);
 	DrawGraph(x, y, stair.CharGraph, TRUE);
 	//プレイヤー描画
-	DrawGraph(player_X, player_Y, player.CharGraph, TRUE);
+	player.disp(XY(player_X, player_Y));
+	//DrawGraph(player_X, player_Y, player.CharGraph, TRUE);
 }
 /*void LoadGraphHandle()
 */
 void LoadGraphHandle(){
-	player.CharGraph = LoadGraph("Resource/graph/player.png");
+	player.loadGraph(PLAYER_GRAPH);
 	stair.CharGraph = LoadGraph("Resource/graph/stair.png");
 }
 
@@ -213,9 +211,9 @@ bool flag			:x軸かy軸かの識別	true:x軸    false:y軸
 int ConversionPosition(int MapPos, int DispPlayerPos, int ChipSize, bool flag)
 {
 	if (flag){
-		return DispPlayerPos - player.xpos*ChipSize+MapPos*ChipSize;
+		return DispPlayerPos - player.getX()*ChipSize+MapPos*ChipSize;
 	}
 	else{
-		return DispPlayerPos - player.ypos*ChipSize + MapPos*ChipSize+ChipSize;
+		return DispPlayerPos - player.getY()*ChipSize + MapPos*ChipSize+ChipSize;
 	}
 }
