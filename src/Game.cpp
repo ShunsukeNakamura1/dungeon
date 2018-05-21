@@ -121,7 +121,7 @@ void CommandExecution()
 	case CTRL_CODE_LEFT:
 		if (map_copy.getData(player.getX()-1, player.getY()) != WALL){
 			map_copy.setData(player.getX()-1, player.getY(),CHAR1);
-			map_copy.setData(player.getX() , player.getY(), map.getData(player.getX(), player.getY()));
+			map_copy.setData(player.getPosition(), map.getData(player.getPosition()));
 			player.move(XY(-1, 0));
 		}
 		break;
@@ -129,21 +129,21 @@ void CommandExecution()
 	case CTRL_CODE_RIGHT:
 		if (map_copy.getData(player.getX()+1, player.getY()) != WALL){
 			map_copy.setData(player.getX()+1, player.getY(), CHAR1);
-			map_copy.setData(player.getX(), player.getY(), map.getData(player.getX(), player.getY()));
+			map_copy.setData(player.getPosition(), map.getData(player.getPosition()));
 			player.move(XY(1, 0));
 		}
 		break;
 	case CTRL_CODE_UP:
 		if (map_copy.getData(player.getX(), player.getY()-1) != WALL) {
 			map_copy.setData(player.getX(), player.getY()-1, CHAR1);
-			map_copy.setData(player.getX(), player.getY(), map.getData(player.getX(), player.getY()));
+			map_copy.setData(player.getPosition(), map.getData(player.getPosition()));
 			player.move(XY(0, -1));
 		}
 		break;
 	case CTRL_CODE_DOWN:
 		if (map_copy.getData(player.getX(), player.getY()+1) != WALL) {
 			map_copy.setData(player.getX(), player.getY()+1, CHAR1);
-			map_copy.setData(player.getX(), player.getY(), map.getData(player.getX(), player.getY()));
+			map_copy.setData(player.getPosition(), map.getData(player.getPosition()));
 			player.move(XY(0, 1));
 		}
 		break;
