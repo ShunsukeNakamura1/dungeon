@@ -47,10 +47,11 @@ void Init(){
 	}
 	//階段をどこかのROOMのどこかに配置(playerと重ならない)
 	while (1){
-		stair.ID = 0;
-		stair.xpos = GetRand(map.getMapSize() - 1);
-		stair.ypos = GetRand(map.getMapSize() - 1);
-		if (map.getData(stair.xpos, stair.ypos) == ROOM && map_copy.getData(stair.xpos, stair.ypos) != CHAR1){
+		stair.setID(0);
+		char xpos = GetRand(map.getMapSize() - 1);
+		char ypos = GetRand(map.getMapSize() - 1);
+		if (map.getData(xpos, ypos) == ROOM && map_copy.getData(xpos, ypos) != CHAR1){
+			stair.setPosition(XY(xpos, ypos));
 			break;
 		}
 	}
@@ -87,7 +88,7 @@ void DispMinMap(int CangeShift_X, int CangeShift_Y, int ChangeSize)
 			int y = shift_Y + j*ChipSize;
 			int y2 = shift_Y + (j + 1)*ChipSize;
 			switch (map.getData(i, j)){
-				//壁なら青を表示
+				//壁なら青を表示v    
 				case WALL:
 					DrawBox(x,y,x + ChipSize,y + ChipSize, Blue, TRUE);
 					break;
@@ -101,8 +102,8 @@ void DispMinMap(int CangeShift_X, int CangeShift_Y, int ChangeSize)
 	}
 	
 	//階段を白で表示
-	int x = WindowSize_X - (shift_X + map.getMapSize()*ChipSize) + stair.xpos*ChipSize;
-	int y = shift_Y + stair.ypos*ChipSize;
+	int x = WindowSize_X - (shift_X + map.getMapSize()*ChipSize) + stair.getX()*ChipSize;
+	int y = shift_Y + stair.getY()*ChipSize;
 	DrawBox(x, y, x + ChipSize, y + ChipSize, White, TRUE);
 	//プレイヤーを赤で表示
 	x = WindowSize_X - (shift_X + map.getMapSize()*ChipSize) + player.getX()*ChipSize;
@@ -183,22 +184,22 @@ int player_X,player_Yを変更することでプレイヤーの描画位置を変更可
 void Disp() {
 	//マップ描画
 	map.MapDisp(player.getPosition());
-	//プレイヤーを描画する座標(全ての基準点)
-	int player_X = WindowSize_X / 2 - MAPCHIPSIZE / 2;
-	int player_Y = WindowSize_Y / 2 - MAPCHIPSIZE * 2;
-	//階段描画
-	int x = ConversionPosition(stair.xpos, player_X, MAPCHIPSIZE, true);
-	int y = ConversionPosition(stair.ypos, player_Y, MAPCHIPSIZE, false);
-	DrawGraph(x, y, stair.CharGraph, TRUE);
 	//プレイヤー描画
+	int player_X = WindowSize_X / 2 - MAPCHIPSIZE / 2;//プレイヤーを描画する座標(全ての基準点)
+	int player_Y = WindowSize_Y / 2 - MAPCHIPSIZE * 2;
 	player.disp(XY(player_X, player_Y));
+	//階段描画
+	int x = ConversionPosition(stair.getX(), player_X, MAPCHIPSIZE, true);
+	int y = ConversionPosition(stair.getY(), player_Y, MAPCHIPSIZE, false);
+	stair.disp(XY(x, y));
+	
 	//DrawGraph(player_X, player_Y, player.CharGraph, TRUE);
 }
 /*void LoadGraphHandle()
 */
 void LoadGraphHandle(){
 	player.loadGraph(PLAYER_GRAPH);
-	stair.CharGraph = LoadGraph("Resource/graph/stair.png");
+	stair.loadGraph("Resource/graph/stair.png");
 }
 
 /*int ConversionPosition(int MapPos, int DispPlayerPos, int ChipSize, bool flag)

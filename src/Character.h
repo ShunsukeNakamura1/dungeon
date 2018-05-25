@@ -31,5 +31,29 @@ public:
 	void disp(XY position);
 	void move(XY value);
 };
-extern Character player;
+
+
+/*オブジェクト情報
+マップ上の基本動かないオブジェクトに関する情報
+階段，アイテム，罠等
+Object_ID.txt参照
+*/
+struct Object {
+private:
+	int ID;
+	XY position;
+	int CharGraph;
+public:
+	void setID(int ID);
+	void setPosition(XY position);
+	void loadGraph(std::string filename);
+
+	int getID();
+	XY getPosition();
+	char getX();
+	char getY();
+	void disp(XY position);
+};
+
+
 

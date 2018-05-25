@@ -3,18 +3,7 @@
 #include "Map.h"
 #include "Character.h"
 
-
-/*オブジェクト情報
-マップ上の基本動かないオブジェクトに関する情報
-階段，アイテム，罠等
-Object_ID.txt参照
-*/
-struct Object{
-	int ID;
-	char xpos;
-	char ypos;
-	int CharGraph;
-};
+extern Character player;
 extern Object stair;
 //関数宣言
 void Game();		//ゲームの実行
