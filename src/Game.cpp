@@ -11,7 +11,6 @@ void Game(){
 	LoadGraphHandle();
 	MapDef def;
 	map.MapGenerator1(def);
-	map.loadGraph(STAGE1_GRAPH);
 	map_copy = map; //マップのコピー
 	Init();
 	Disp();
@@ -182,24 +181,24 @@ void CommandExecution()
 int player_X,player_Yを変更することでプレイヤーの描画位置を変更可
 */
 void Disp() {
+
+	int player_X = WindowSize_X / 2 - MAPCHIPSIZE / 2;//プレイヤーを描画する座標(全ての基準点)
+	int player_Y = WindowSize_Y / 2 - MAPCHIPSIZE * 2;
+	XY player_disp_pos(player_X, player_Y);
+	XY stair_pos = ConversionPosition(stair.getPosition(), player_disp_pos, MAPCHIPSIZE);
 	//マップ描画
 	map.MapDisp(player.getPosition());
 	//プレイヤー描画
-	int player_X = WindowSize_X / 2 - MAPCHIPSIZE / 2;//プレイヤーを描画する座標(全ての基準点)
-	int player_Y = WindowSize_Y / 2 - MAPCHIPSIZE * 2;
-	player.disp(XY(player_X, player_Y));
+	player.disp(player_disp_pos);
 	//階段描画
-	int x = ConversionPosition(stair.getX(), player_X, MAPCHIPSIZE, true);
-	int y = ConversionPosition(stair.getY(), player_Y, MAPCHIPSIZE, false);
-	stair.disp(XY(x, y));
-	
-	//DrawGraph(player_X, player_Y, player.CharGraph, TRUE);
+	stair.disp(stair_pos);
 }
-/*void LoadGraphHandle()
-*/
+
+/*void LoadGraphHandle()*/
 void LoadGraphHandle(){
+	map.loadGraph(STAGE1_GRAPH);
 	player.loadGraph(PLAYER_GRAPH);
-	stair.loadGraph("Resource/graph/stair.png");
+	stair.loadGraph(STAIR_GRAPH);
 }
 
 /*int ConversionPosition(int MapPos, int DispPlayerPos, int ChipSize, bool flag)
@@ -217,4 +216,10 @@ int ConversionPosition(int MapPos, int DispPlayerPos, int ChipSize, bool flag)
 	else{
 		return DispPlayerPos - player.getY()*ChipSize + MapPos*ChipSize+ChipSize;
 	}
+}
+XY ConversionPosition(XY MapPos, XY DispPlayerPos, int ChipSize)
+{
+	int x = DispPlayerPos.x - player.getX()*ChipSize + MapPos.x * ChipSize;
+	int y = DispPlayerPos.y - player.getY()*ChipSize + MapPos.y * ChipSize + ChipSize;
+	return XY(x, y);
 }

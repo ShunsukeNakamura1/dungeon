@@ -8,7 +8,7 @@
 #define PLAYER_GRAPH "Resource/graph/player.png"
 //ステージ画像のファイル名
 #define STAGE1_GRAPH "Resource/graph/floor_wall.png"
-
+#define STAIR_GRAPH "Resource/graph/stair.png"
 
 struct XY {
 	int x, y;

@@ -13,6 +13,7 @@ void CommandExecution();	//プレイヤーの移動(成功：true / 失敗：false)
 void Disp();		//画面表示
 void LoadGraphHandle();//画像データ読み込み
 int ConversionPosition(int MapPos, int DispPlayerPos, int ChipSize, bool flag);	//マップ座標から画面座標への変換
+XY ConversionPosition(XY MapPos, XY DispPlayerPos, int ChipSize);
 
 const unsigned int Red = GetColor(255, 0, 0);	//プレイヤーの色
 const unsigned int Green = GetColor(0, 255, 0);	//部屋の色
